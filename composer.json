@@ -1,0 +1,32 @@
+{
+  "name": "inowas/sensor-data",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Inowas\\SensorData\\": "src/"
+    }
+  },
+  "require": {
+    "ext-http": "*",
+    "doctrine/dbal": "^2.10@dev",
+    "symfony/filesystem": "^5.0@dev",
+    "league/csv": "^9.0@dev",
+    "symfony/finder": "^4.3",
+    "doctrine/orm": "^2.6",
+    "symfony/yaml": "2.*",
+    "ramsey/uuid": "^3.8",
+    "openmetrics-php/exposition-text": "^0.3.1"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+    "phpunit/phpunit": "^8.2"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ralf Junghanns",
+      "email": "ralf.junghanns@tu-dresden.de"
+    }
+  ],
+  "minimum-stability": "stable"
+}
