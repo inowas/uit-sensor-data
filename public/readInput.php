@@ -9,7 +9,7 @@ require_once __DIR__ . '/../bootstrap.php';
 
 
 $dataPath = __DIR__ . '/../sensoweb';
-$archivePath = __DIR__ . '/../sensoweb/archive';
+$archivePath = __DIR__ . '/../archive';
 
 $fileReader = new FileReader();
 $validFiles = $fileReader->listSensorFiles($dataPath);
