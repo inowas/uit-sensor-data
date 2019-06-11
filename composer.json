@@ -7,7 +7,6 @@
     }
   },
   "require": {
-    "ext-http": "*",
     "doctrine/dbal": "^2.10@dev",
     "symfony/filesystem": "^5.0@dev",
     "league/csv": "^9.0@dev",
