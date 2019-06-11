@@ -52,6 +52,11 @@ $stations = [
         'projectId' => 'DEU1',
         'sensorId' => 'WL-ELBE-PIRNA',
         'url' => 'https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations/PIRNA/W.json?includeCurrentMeasurement=true'
+    ],
+    [
+        'projectId' => 'DEU1',
+        'sensorId' => 'WL-ELBE-DRESDEN',
+        'url' => 'https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations/DRESDEN/W.json?includeCurrentMeasurement=true'
     ]
 ];
 
