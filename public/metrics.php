@@ -13,8 +13,10 @@ use OpenMetricsPhp\Exposition\Text\HttpResponse;
 
 require_once __DIR__ . '/../bootstrap.php';
 
-$sensors = $entityManager->getRepository(Sensor::class)->findAll();
+$withTimeStamp = (int)$_GET['withTimeStamp'] === 1;
 
+
+$sensors = $entityManager->getRepository(Sensor::class)->findAll();
 $gauges = GaugeCollection::withMetricName(
     MetricName::fromString('uit_sensors'),
     )->withHelp('A collection of all uit-sensors in the smartcontrol project.');
@@ -42,12 +44,27 @@ foreach ($sensors as $sensor) {
             $labels['geohash'] = $location;
         }
 
-        $gauges->add(
-            Gauge::fromValue($value)->withLabelCollection(
-                LabelCollection::fromAssocArray($labels)
-            )
-        );
+        if ($withTimeStamp) {
+            $gauges->add(
+                Gauge::fromValueAndTimestamp(
+                    $value,
+                    $sensorValue->dateTime()->getTimestamp() * 1000
+                )->withLabelCollection(
+                    LabelCollection::fromAssocArray($labels)
+                )
+            );
+        }
+
+        if (!$withTimeStamp) {
+            $gauges->add(
+                Gauge::fromValue($value)->withLabelCollection(
+                    LabelCollection::fromAssocArray($labels)
+                )
+            );
+        }
     }
 }
 
-HttpResponse::fromMetricCollections($gauges)->respond();
+$httpResponse = HttpResponse::fromMetricCollections($gauges);
+$httpResponse->withHeader('Content-Type', 'text/plain; charset=utf-8');
+$httpResponse->respond();
