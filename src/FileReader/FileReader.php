@@ -86,7 +86,7 @@ class FileReader
         $firstColumn = true;
         foreach ($record as $head => $value) {
             if ($firstColumn) {
-                $dateTime = new DateTime($value);
+                $dateTime = (new DateTime($value))->setTimezone(new \DateTimeZone('Europe/Berlin'));
                 $firstColumn = false;
             }
 
