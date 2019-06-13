@@ -10,7 +10,7 @@ use OpenMetricsPhp\Exposition\Text\HttpResponse;
 
 require_once __DIR__ . '/../bootstrap.php';
 
-$withTimeStamp = (int)($_GET['withTimeStamp'] ?? 1);
+$withTimeStamp = (bool)($_GET['withTimeStamp'] ?? false);
 $stations = $_GET['stations'] ?? [];
 
 if (!is_array($stations)) {
