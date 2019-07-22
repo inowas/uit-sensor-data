@@ -26,18 +26,27 @@ foreach ($validFiles as $filename) {
     ]);
 
     if (!$sensor instanceof Sensor) {
-        $sensor = new Sensor($projectId, $sensorId, '');
+        try {
+            $sensor = new Sensor($projectId, $sensorId, '');
+        } catch (Exception $e) {
+        }
     }
 
     /** @var SensorValue[] $sensorValues */
-    $sensorValues = $fileReader->readSensorValuesFromFile($filename);
+    try {
+        $sensorValues = $fileReader->readSensorValuesFromFile($filename);
+        foreach ($sensorValues as $sensorValue) {
+            $sensor->addValue($sensorValue);
+        }
 
-    foreach ($sensorValues as $sensorValue) {
-        $sensor->addValue($sensorValue);
+        $entityManager->persist($sensor);
+        $entityManager->flush();
+
+    } catch (\Inowas\SensorData\Exception\InvalidArgumentException $e) {
+    } catch (\League\Csv\Exception $e) {
+    } catch (Exception $e) {
     }
 
-    $entityManager->persist($sensor);
-    $entityManager->flush();
 
     $filesystem = new Filesystem();
 
