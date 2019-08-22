@@ -126,7 +126,6 @@ class Sensor implements \JsonSerializable
             }
         }
 
-
         usort($data, static function ($a, $b) {
             return $a['date_time'] > $b['date_time'];
         });
