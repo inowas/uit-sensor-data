@@ -10,7 +10,6 @@ use OpenMetricsPhp\Exposition\Text\Metrics\Gauge;
 use OpenMetricsPhp\Exposition\Text\Types\MetricName;
 use OpenMetricsPhp\Exposition\Text\HttpResponse;
 
-
 require_once __DIR__ . '/../bootstrap.php';
 
 $withTimeStamp = (int)$_GET['withTimeStamp'] === 1;

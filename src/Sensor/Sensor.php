@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inowas\SensorData\Sensor;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +15,7 @@ use Ramsey\Uuid\Uuid;
  * @ORM\Entity
  * @ORM\Table(name="sensors")
  **/
-class Sensor
+class Sensor implements \JsonSerializable
 {
     /**
      * @ORM\Id
@@ -91,5 +92,68 @@ class Sensor
     public function values(): Collection
     {
         return $this->values;
+    }
+
+    public function properties(): array
+    {
+        /** @var SensorValue $sensorValue */
+        $sensorValue = $this->values->last();
+        if ($sensorValue instanceof SensorValue) {
+            return array_keys($sensorValue->data());
+        }
+        return [];
+    }
+
+    public function getPropertyData(string $property, int $tsBegin = null, int $tsEnd = null): array
+    {
+        $data = [];
+        /** @var SensorValue $value */
+        foreach ($this->values as $value) {
+            if ($tsBegin === null || $value->dateTime() >= new DateTime('@' . $tsBegin)) {
+                if ($tsEnd === null || $value->dateTime() <= new DateTime('@' . $tsEnd)) {
+                    $dateTime = $value->dateTime();
+                    $propertyData = null;
+                    if (array_key_exists($property, $value->data())) {
+                        $propertyData = $value->data()[$property];
+                    }
+
+                    $data[] = [
+                        'date_time' => $dateTime,
+                        $property => $propertyData
+                    ];
+                }
+
+            }
+        }
+
+
+        usort($data, static function ($a, $b) {
+            return $a['date_time'] > $b['date_time'];
+        });
+
+        $data = array_map(static function ($a) {
+            /** @var DateTime $dateTime */
+            $dateTime = $a['date_time'];
+            $a['date_time'] = $dateTime->format(DATE_ATOM);
+            return $a;
+        }, $data);
+        return $data;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'name' => $this->name,
+            'project' => $this->project,
+            'location' => $this->location,
+            'values' => $this->values->toArray()
+        ];
     }
 }

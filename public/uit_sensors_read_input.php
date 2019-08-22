@@ -7,7 +7,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 require_once __DIR__ . '/../bootstrap.php';
 
-
 $dataPath = __DIR__ . '/../sensoweb';
 $archivePath = __DIR__ . '/../archive';
 
