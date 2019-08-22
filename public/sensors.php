@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 $request = Request::createFromGlobals();
 
-$uriParams = explode('/', $request->server->get('PATH_INFO'));
+$uriParams = explode('/', $request->getPathInfo());
 $projectName = count($uriParams) > 3 ? $uriParams[3] : null;
 $sensorName = count($uriParams) > 5 ? $uriParams[5] : null;
 $property = count($uriParams) > 7 ? $uriParams[7] : null;
