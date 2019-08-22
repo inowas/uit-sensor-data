@@ -10,9 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 $request = Request::createFromGlobals();
 
-$sensorName = $request->query->get('name');
+$uriParams = explode('/', $request->server->get('PATH_INFO'));
+$projectName = count($uriParams) > 3 ? $uriParams[3] : null;
+$sensorName = count($uriParams) > 5 ? $uriParams[5] : null;
+$property = count($uriParams) > 7 ? $uriParams[7] : null;
 
-if ($sensorName === null) {
+
+if ($projectName === null || $sensorName === null) {
     $sensors = $entityManager->getRepository(Sensor::class)->findAll();
     $result = [];
 
@@ -36,9 +40,9 @@ if ($sensorName === null) {
     return;
 }
 
-if ($sensorName) {
+if ($sensorName && $projectName) {
     /** @var Sensor $sensor */
-    $sensor = $entityManager->getRepository(Sensor::class)->findOneBy(['name' => $sensorName]);
+    $sensor = $entityManager->getRepository(Sensor::class)->findOneBy(['name' => $sensorName, 'project' => $projectName]);
     if (!$sensor) {
         $response = new Response();
         $response->setStatusCode(Response::HTTP_NOT_FOUND);
@@ -48,10 +52,10 @@ if ($sensorName) {
         return;
     }
 
-    $property = $request->query->get('property');
     $begin = $request->query->get('begin') ? (int)$request->query->get('begin') : null;
     $end = $request->query->get('end') ? (int)$request->query->get('end') : null;
 
+    /** @var $property string|null */
     if ($property) {
         $response = new Response();
         $response->setContent(json_encode($sensor->getPropertyData($property, $begin, $end)));
