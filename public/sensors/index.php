@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../../bootstrap.php';
 
 use Inowas\SensorData\Sensor\Sensor;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 $request = Request::createFromGlobals();
 
 $uriParams = explode('/', $request->getPathInfo());
-$projectName = count($uriParams) > 3 ? $uriParams[3] : null;
-$sensorName = count($uriParams) > 5 ? $uriParams[5] : null;
-$property = count($uriParams) > 7 ? $uriParams[7] : null;
-
+$projectName = count($uriParams) > 2 ? $uriParams[2] : null;
+$sensorName = count($uriParams) > 4 ? $uriParams[4] : null;
+$property = count($uriParams) > 6 ? $uriParams[6] : null;
 
 if ($projectName === null || $sensorName === null) {
     $sensors = $entityManager->getRepository(Sensor::class)->findAll();
