@@ -7,12 +7,13 @@ namespace Inowas\SensorData\Sensor;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="sensor_values")
  **/
-class SensorValue implements \JsonSerializable
+class SensorValue implements JsonSerializable
 {
     /**
      * @ORM\Id

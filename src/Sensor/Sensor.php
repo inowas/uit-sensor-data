@@ -9,13 +9,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
+use JsonSerializable;
 use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="sensors")
  **/
-class Sensor implements \JsonSerializable
+class Sensor implements JsonSerializable
 {
     /**
      * @ORM\Id
@@ -104,7 +105,7 @@ class Sensor implements \JsonSerializable
         return [];
     }
 
-    public function getPropertyData(string $property, int $tsBegin = null, int $tsEnd = null): array
+    public function getParameterData(string $parameter, int $tsBegin = null, int $tsEnd = null): array
     {
         $data = [];
         /** @var SensorValue $value */
@@ -113,13 +114,13 @@ class Sensor implements \JsonSerializable
                 if ($tsEnd === null || $value->dateTime() <= new DateTime('@' . $tsEnd)) {
                     $dateTime = $value->dateTime();
                     $propertyData = null;
-                    if (array_key_exists($property, $value->data())) {
-                        $propertyData = $value->data()[$property];
+                    if (array_key_exists($parameter, $value->data())) {
+                        $propertyData = $value->data()[$parameter];
                     }
 
                     $data[] = [
                         'date_time' => $dateTime,
-                        $property => $propertyData
+                        $parameter => $propertyData
                     ];
                 }
 

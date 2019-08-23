@@ -13,7 +13,7 @@ $request = Request::createFromGlobals();
 $uriParams = explode('/', $request->getPathInfo());
 $projectName = count($uriParams) > 2 ? $uriParams[2] : null;
 $sensorName = count($uriParams) > 4 ? $uriParams[4] : null;
-$property = count($uriParams) > 6 ? $uriParams[6] : null;
+$parameter = count($uriParams) > 6 ? $uriParams[6] : null;
 
 if ($projectName === null || $sensorName === null) {
     $sensors = $entityManager->getRepository(Sensor::class)->findAll();
@@ -54,10 +54,10 @@ if ($sensorName && $projectName) {
     $begin = $request->query->get('begin') ? (int)$request->query->get('begin') : null;
     $end = $request->query->get('end') ? (int)$request->query->get('end') : null;
 
-    /** @var $property string|null */
-    if ($property) {
+    /** @var $parameter string|null */
+    if ($parameter) {
         $response = new Response();
-        $response->setContent(json_encode($sensor->getPropertyData($property, $begin, $end)));
+        $response->setContent(json_encode($sensor->getParameterData($parameter, $begin, $end)));
         $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'application/json');
         $response->setCharset('UTF8');
