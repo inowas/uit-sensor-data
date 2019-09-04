@@ -15,6 +15,14 @@ $projectName = count($uriParams) > 2 ? $uriParams[2] : null;
 $sensorName = count($uriParams) > 4 ? $uriParams[4] : null;
 $parameter = count($uriParams) > 6 ? $uriParams[6] : null;
 
+$response = new Response();
+$response->headers->set('Access-Control-Allow-Headers', '*');
+$response->headers->set('Access-Control-Allow-Origin', '*');
+$response->headers->set('Access-Control-Allow-Methods', '*');
+$response->headers->set('Content-Type', 'application/json');
+$response->setStatusCode(Response::HTTP_OK);
+$response->setCharset('UTF8');
+
 if ($projectName === null || $sensorName === null) {
     $sensors = $entityManager->getRepository(Sensor::class)->findAll();
     $result = [];
@@ -30,11 +38,8 @@ if ($projectName === null || $sensorName === null) {
         ];
     }
 
-    $response = new Response();
     $response->setContent(json_encode($result));
     $response->setStatusCode(Response::HTTP_OK);
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setCharset('UTF8');
     $response->send();
     return;
 }
@@ -43,10 +48,7 @@ if ($sensorName && $projectName) {
     /** @var Sensor $sensor */
     $sensor = $entityManager->getRepository(Sensor::class)->findOneBy(['name' => $sensorName, 'project' => $projectName]);
     if (!$sensor) {
-        $response = new Response();
         $response->setStatusCode(Response::HTTP_NOT_FOUND);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setCharset('UTF8');
         $response->send();
         return;
     }
@@ -56,20 +58,12 @@ if ($sensorName && $projectName) {
 
     /** @var $parameter string|null */
     if ($parameter) {
-        $response = new Response();
         $response->setContent(json_encode($sensor->getParameterData($parameter, $begin, $end)));
-        $response->setStatusCode(Response::HTTP_OK);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setCharset('UTF8');
         $response->send();
         return;
     }
 
-    $response = new Response();
     $response->setContent(json_encode($sensor));
-    $response->setStatusCode(Response::HTTP_OK);
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setCharset('UTF8');
     $response->send();
     return;
 }
