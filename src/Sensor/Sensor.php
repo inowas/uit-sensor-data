@@ -105,27 +105,79 @@ class Sensor implements JsonSerializable
         return [];
     }
 
-    public function getParameterData(string $parameter, int $tsBegin = null, int $tsEnd = null): array
+    public function getParameterData(string $parameter, int $tsBegin = null, int $tsEnd = null, float $minValue = null, float $maxValue = null, $timeResolution = null): array
     {
         $data = [];
         /** @var SensorValue $value */
         foreach ($this->values as $value) {
-            if ($tsBegin === null || $value->dateTime() >= new DateTime('@' . $tsBegin)) {
-                if ($tsEnd === null || $value->dateTime() <= new DateTime('@' . $tsEnd)) {
-                    $dateTime = $value->dateTime();
-                    $propertyData = null;
-                    if (array_key_exists($parameter, $value->data())) {
-                        $propertyData = $value->data()[$parameter];
-                    }
 
-                    $data[] = [
-                        'date_time' => $dateTime,
-                        $parameter => $propertyData
-                    ];
-                }
+            $dateTime = $value->dateTime();
+            if ($tsBegin && ($dateTime < new DateTime('@' . $tsBegin))) {
+                continue;
+            }
 
+            if ($tsEnd && ($dateTime > new DateTime('@' . $tsEnd))) {
+                continue;
+            }
+
+            if (!array_key_exists($parameter, $value->data())) {
+                continue;
+            }
+
+            $value = $value->data()[$parameter];
+            if ($minValue && $value < $minValue) {
+                continue;
+            }
+
+            if ($maxValue && $value > $maxValue) {
+                continue;
+            }
+
+            switch ($timeResolution) {
+                case '1D':
+                    $dateTime->setTime(0, 0);
+                    break;
+                case '1H':
+                    $dateTime->setTime($dateTime->format('H'), 0);
+                    break;
+            }
+
+            $data[] = [
+                'date_time' => $dateTime,
+                $parameter => $value
+            ];
+        }
+
+
+        $dateTimes = [];
+        foreach ($data as $value) {
+            $dateTime = $value['date_time'];
+            if (!in_array($dateTime, $dateTimes, true)) {
+                $dateTimes[] = $dateTime;
             }
         }
+
+        if (count($dateTimes) < count($data)) {
+            $newData = [];
+            foreach ($dateTimes as $dateTime) {
+                $sum = 0;
+                $counter = 0;
+                foreach ($data as $dataSet) {
+                    if ($dataSet['date_time'] === $dateTime) {
+                        $sum += $dataSet['value'];
+                        $counter++;
+                    }
+                }
+
+                $newData[] = [
+                    'date_time' => $dateTime,
+                    $parameter => $sum / $counter
+                ];
+            }
+
+            $data = $newData;
+        }
+
 
         usort($data, static function ($a, $b) {
             return $a['date_time'] > $b['date_time'];
@@ -137,6 +189,7 @@ class Sensor implements JsonSerializable
             $a['date_time'] = $dateTime->format(DATE_ATOM);
             return $a;
         }, $data);
+
         return $data;
     }
 

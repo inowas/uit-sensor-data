@@ -55,15 +55,18 @@ if ($sensorName && $projectName) {
 
     $begin = $request->query->get('begin') ? (int)$request->query->get('begin') : null;
     $end = $request->query->get('end') ? (int)$request->query->get('end') : null;
+    $min = $request->query->get('min') ? (float)$request->query->get('min') : null;
+    $max = $request->query->get('max') ? (float)$request->query->get('max') : null;
+    $timeResolution = $request->query->get('timeResolution');
 
     /** @var $parameter string|null */
     if ($parameter) {
-        $response->setContent(json_encode($sensor->getParameterData($parameter, $begin, $end)));
+        $response->setContent(json_encode($sensor->getParameterData($parameter, $begin, $end, $min, $max, $timeResolution), JSON_THROW_ON_ERROR, 512));
         $response->send();
         return;
     }
 
-    $response->setContent(json_encode($sensor));
+    $response->setContent(json_encode($sensor, JSON_THROW_ON_ERROR, 512));
     $response->send();
     return;
 }
