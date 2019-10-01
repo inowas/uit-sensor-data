@@ -38,7 +38,7 @@ if ($projectName === null || $sensorName === null) {
         ];
     }
 
-    $response->setContent(json_encode($result));
+    $response->setContent(json_encode($result, JSON_THROW_ON_ERROR, 512));
     $response->setStatusCode(Response::HTTP_OK);
     $response->send();
     return;

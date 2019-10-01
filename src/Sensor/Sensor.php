@@ -138,7 +138,7 @@ class Sensor implements JsonSerializable
                     $dateTime->setTime(0, 0);
                     break;
                 case '1H':
-                    $dateTime->setTime($dateTime->format('H'), 0);
+                    $dateTime->setTime((int)$dateTime->format('H'), 0);
                     break;
             }
 
@@ -148,30 +148,25 @@ class Sensor implements JsonSerializable
             ];
         }
 
+        $timeStampValues = [];
+        foreach ($data as $dataSet) {
+            /** @var DateTime $dateTime */
+            $dateTime = $dataSet['date_time'];
+            $timeStamp = $dateTime->getTimestamp();
 
-        $dateTimes = [];
-        foreach ($data as $value) {
-            $dateTime = $value['date_time'];
-            if (!in_array($dateTime, $dateTimes, true)) {
-                $dateTimes[] = $dateTime;
+            if (!array_key_exists($timeStamp, $timeStampValues)) {
+                $timeStampValues[$timeStamp] = [];
             }
+
+            $timeStampValues[$timeStamp][] = $dataSet[$parameter];
         }
 
-        if (count($dateTimes) < count($data)) {
+        if (count($data) > count($timeStampValues)) {
             $newData = [];
-            foreach ($dateTimes as $dateTime) {
-                $sum = 0;
-                $counter = 0;
-                foreach ($data as $dataSet) {
-                    if ($dataSet['date_time'] === $dateTime) {
-                        $sum += $dataSet['value'];
-                        $counter++;
-                    }
-                }
-
+            foreach ($timeStampValues as $timeStamp => $values) {
                 $newData[] = [
-                    'date_time' => $dateTime,
-                    $parameter => $sum / $counter
+                    'date_time' => (new DateTime())->setTimestamp($timeStamp),
+                    $parameter => array_sum($values) / count($values)
                 ];
             }
 
