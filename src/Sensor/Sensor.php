@@ -105,6 +105,16 @@ class Sensor implements JsonSerializable
         return [];
     }
 
+    /**
+     * @param string $parameter
+     * @param int|null $tsBegin
+     * @param int|null $tsEnd
+     * @param float|null $minValue
+     * @param float|null $maxValue
+     * @param null $timeResolution
+     * @return array
+     * @throws Exception
+     */
     public function getParameterData(string $parameter, int $tsBegin = null, int $tsEnd = null, float $minValue = null, float $maxValue = null, $timeResolution = null): array
     {
         $data = [];
@@ -133,46 +143,15 @@ class Sensor implements JsonSerializable
                 continue;
             }
 
-            switch ($timeResolution) {
-                case '1D':
-                    $dateTime->setTime(0, 0);
-                    break;
-                case '1H':
-                    $dateTime->setTime((int)$dateTime->format('H'), 0);
-                    break;
-            }
-
             $data[] = [
                 'date_time' => $dateTime,
                 $parameter => $value
             ];
         }
 
-        $timeStampValues = [];
-        foreach ($data as $dataSet) {
-            /** @var DateTime $dateTime */
-            $dateTime = $dataSet['date_time'];
-            $timeStamp = $dateTime->getTimestamp();
-
-            if (!array_key_exists($timeStamp, $timeStampValues)) {
-                $timeStampValues[$timeStamp] = [];
-            }
-
-            $timeStampValues[$timeStamp][] = $dataSet[$parameter];
+        if ($timeResolution !== null) {
+            $data = $this->applyTimeResolution($data, $parameter, $timeResolution);
         }
-
-        if (count($data) > count($timeStampValues)) {
-            $newData = [];
-            foreach ($timeStampValues as $timeStamp => $values) {
-                $newData[] = [
-                    'date_time' => (new DateTime())->setTimestamp($timeStamp),
-                    $parameter => array_sum($values) / count($values)
-                ];
-            }
-
-            $data = $newData;
-        }
-
 
         usort($data, static function ($a, $b) {
             return $a['date_time'] > $b['date_time'];
@@ -203,5 +182,63 @@ class Sensor implements JsonSerializable
             'location' => $this->location,
             'values' => $this->values->toArray()
         ];
+    }
+
+    /**
+     * @param array $data
+     * @param string $parameter
+     * @param string|null $timeResolution
+     * @return array
+     * @throws Exception
+     */
+    private function applyTimeResolution(array $data, string $parameter, string $timeResolution = null): array
+    {
+        if ($timeResolution === null) {
+            return $data;
+        }
+
+        foreach ($data as &$dataSet) {
+            /** @var DateTime $dateTime */
+            $dateTime = $dataSet['date_time'];
+
+            switch ($timeResolution) {
+                case '1D':
+                    $dateTime->setTime(0, 0);
+                    break;
+                case '1H':
+                    $dateTime->setTime((int)$dateTime->format('H'), 0);
+                    break;
+            }
+
+            $dataSet['date_time'] = $dateTime;
+        }
+        unset($dataSet);
+
+        $timeStampValues = [];
+        foreach ($data as $dataSet) {
+            /** @var DateTime $dateTime */
+            $dateTime = $dataSet['date_time'];
+            $timeStamp = $dateTime->getTimestamp();
+
+            if (!array_key_exists($timeStamp, $timeStampValues)) {
+                $timeStampValues[$timeStamp] = [];
+            }
+
+            $timeStampValues[$timeStamp][] = $dataSet[$parameter];
+        }
+
+        if (count($data) > count($timeStampValues)) {
+            $newData = [];
+            foreach ($timeStampValues as $timeStamp => $values) {
+                $newData[] = [
+                    'date_time' => (new DateTime())->setTimestamp($timeStamp),
+                    $parameter => array_sum($values) / count($values)
+                ];
+            }
+
+            $data = $newData;
+        }
+
+        return $data;
     }
 }
