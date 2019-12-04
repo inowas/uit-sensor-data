@@ -122,11 +122,11 @@ class Sensor implements JsonSerializable
         foreach ($this->values as $value) {
 
             $dateTime = $value->dateTime();
-            if ($tsBegin && ($dateTime < new DateTime('@' . $tsBegin))) {
+            if ($tsBegin !== null && ($dateTime < new DateTime('@' . $tsBegin))) {
                 continue;
             }
 
-            if ($tsEnd && ($dateTime > new DateTime('@' . $tsEnd))) {
+            if ($tsEnd !== null && ($dateTime > new DateTime('@' . $tsEnd))) {
                 continue;
             }
 
@@ -135,11 +135,11 @@ class Sensor implements JsonSerializable
             }
 
             $value = $value->data()[$parameter];
-            if ($minValue && $value < $minValue) {
+            if ($minValue !== null && $value < $minValue) {
                 continue;
             }
 
-            if ($maxValue && $value > $maxValue) {
+            if ($maxValue !== null && $value > $maxValue) {
                 continue;
             }
 
