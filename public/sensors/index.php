@@ -53,11 +53,11 @@ if ($sensorName && $projectName) {
         return;
     }
 
-    $begin = $request->query->get('begin') !== false ? (int)$request->query->get('begin') : null;
-    $end = $request->query->get('end') !== false ? (int)$request->query->get('end') : null;
-    $min = $request->query->get('min') !== false ? (float)$request->query->get('min') : null;
-    $max = $request->query->get('max') !== false ? (float)$request->query->get('max') : null;
-    $timeResolution = $request->query->get('timeResolution');
+    $begin = $request->query->get('begin', null) !== null ? (int)$request->query->get('begin') : null;
+    $end = $request->query->get('end', null) !== null ? (int)$request->query->get('end') : null;
+    $min = $request->query->get('min', null) !== null ? (float)$request->query->get('min') : null;
+    $max = $request->query->get('max', null) !== null ? (float)$request->query->get('max') : null;
+    $timeResolution = $request->query->get('timeResolution', null);
 
     /** @var $parameter string|null */
     if ($parameter) {
