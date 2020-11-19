@@ -9,6 +9,20 @@ require_once __DIR__ . '/../bootstrap.php';
 
 $dataPath = __DIR__ . '/../sensoweb';
 $archivePath = __DIR__ . '/../archive';
+$processedPath = __DIR__ . '/../processed';
+
+$filesystem = new Filesystem();
+if (!$filesystem->exists($dataPath)) {
+    $filesystem->mkdir($dataPath);
+}
+
+if (!$filesystem->exists($archivePath)) {
+    $filesystem->mkdir($archivePath);
+}
+
+if (!$filesystem->exists($processedPath)) {
+    $filesystem->mkdir($processedPath);
+}
 
 $fileReader = new FileReader();
 $validFiles = $fileReader->listSensorFiles($dataPath);
@@ -46,13 +60,15 @@ foreach ($validFiles as $filename) {
     } catch (Exception $e) {
     }
 
-
-    $filesystem = new Filesystem();
+    $filesystem->copy(
+        $dataPath . '/' . basename($filename),
+        $processedPath . '/' . basename($filename),
+    );
 
     $filesystem->rename(
         $dataPath . '/' . basename($filename),
         $archivePath . '/' . basename($filename),
-        );
+    );
 }
 
 echo 'DONE!';
